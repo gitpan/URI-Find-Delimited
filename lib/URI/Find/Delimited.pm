@@ -3,7 +3,7 @@ package URI::Find::Delimited;
 use strict;
 
 use vars qw( $VERSION );
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 use base qw(URI::Find);
 
@@ -148,6 +148,8 @@ sub find {
     my($self, $r_text) = @_;
 
     my $urlsfound = 0;
+
+    URI::URL::strict(1); # Don't assume any old thing followed by : is a scheme
 
     my $uri_re    = $self->uri_re;
     my $prefix_re = $self->{ignore_quoted} ? '(?<!["a-zA-Z])' : '';

@@ -1,115 +1,107 @@
-URI::Find::Delimited(3)User Contributed Perl DocumentatioUnRI::Find::Delimited(3)
+NAME
+    URI::Find::Delimited - Find URIs which may be wrapped in enclosing
+    delimiters.
 
+DESCRIPTION
+    Works like URI::Find, but is prepared for URIs in your text to be
+    wrapped in a pair of delimiters and optionally have a title. This will
+    be useful for processing text that already has some minimal markup in
+    it, like bulletin board posts or wiki text.
 
+SYNOPSIS
+      my $finder = URI::Find::Delimited->new;
+      my $text = "This is a [http://the.earth.li/ titled link].";
+      $finder->find(\$text);
+      print $text;
 
-NNAAMMEE
-       URI::Find::Delimited - Find URIs which may be wrapped in enclosing
-       delimiters.
+METHODS
+    new
+          my $finder = URI::Find::Delimited->new(
+              callback      => \&callback,
+              delimiter_re  => [ '\[', '\]' ],
+              ignore_quoted => 1               # defaults to 0
+          );
 
-DDEESSCCRRIIPPTTIIOONN
-       Works like URI::Find, but is prepared for URIs in your text to be
-       wrapped in a pair of delimiters and optionally have a title. This will
-       be useful for processing text that already has some minimal markup in
-       it, like bulletin board posts or wiki text.
+        All arguments are optional; defaults are provided (see below).
 
-SSYYNNOOPPSSIISS
-         my $finder = URI::Find::Delimited->new;
-         my $text = "This is a [http://the.earth.li/ titled link].";
-         $finder->find(\$text);
-         print $text;
+        Creates a new URI::Find::Delimited object. This object works
+        similarly to a URI::Find object, but as well as just looking for
+        URIs it is also aware of the concept of a wrapped, titled URI. These
+        look something like
 
+          [http://foo.com/ the foo website]
 
-MMEETTHHOODDSS
-       nneeww
-             my $finder = URI::Find::Delimited->new(
-                 callback      => \&callback,
-                 delimiter_re  => [ '\[', '\]' ],
-                 ignore_quoted => 1               # defaults to 0
-             );
+        where:
 
-           All arguments are optional; defaults are provided (see below).
+        * "[" is the opening delimiter
+        * "]" is the closing delimiter
+        * "http://foo.com/" is the URI
+        * "the foo website" is the title
+        * the URI and title are separated by spaces and/or tabs
 
-           Creates a new URI::Find::Delimited object. This object works simi-
-           larly to a URI::Find object, but as well as just looking for URIs
-           it is also aware of the concept of a wrapped, titled URI.  These
-           look something like
+        The URI::Find::Delimited object will extract each of these parts
+        separately and pass them to your callback.
 
-             [http://foo.com/ the foo website]
+        callback
+            "callback" is a function which is called on each URI found. It
+            is passed five arguments: the opening delimiter (if found), the
+            closing delimiter (if found), the URI, the title (if found), and
+            any whitespace found between the URI and title.
 
-           where:
+            The return value of the callback will replace the original URI
+            in the text.
 
-           +o "[" is the opening delimiter
-           +o "]" is the closing delimiter
-           +o "http://foo.com/" is the URI
-           +o "the foo website" is the title
-           +o the URI and title are separated by spaces and/or tabs
+            If you do not supply your own callback, the object will create a
+            default one which will put your URIs in 'a href' tags using the
+            URI for the target and the title for the link text. If no title
+            is provided for a URI then the URI itself will be used as the
+            title. If the delimiters aren't balanced (eg if the opening one
+            is present but no closing one is found) then the URI is treated
+            as not being wrapped.
 
-           The URI::Find::Delimited object will extract each of these parts
-           separately and pass them to your callback.
+            Note: the default callback will not remove the delimiters from
+            the text. It should be simple enough to write your own callback
+            to remove them, based on the one in the source, if that's what
+            you want. In fact there's an example in this distribution, in
+            "t/delimited.t".
 
-           ccaallllbbaacckk
-               "callback" is a function which is called on each URI found. It
-               is passed five arguments: the opening delimiter (if found), the
-               closing delimiter (if found), the URI, the title (if found),
-               and any whitespace found between the URI and title.
+        delimiter_re
+            The "delimiter_re" parameter is optional. If you do supply it
+            then it should be a ref to an array containing two regexes. It
+            defaults to using single square brackets as the delimiters.
 
-               The return value of the callback will replace the original URI
-               in the text.
+            Don't use capturing groupings "( )" in your delimiters or things
+            will break. Use non-capturing "(?: )" instead.
 
-               If you do not supply your own callback, the object will create
-               a default one which will put your URIs in 'a href' tags using
-               the URI for the target and the title for the link text. If no
-               title is provided for a URI then the URI itself will be used as
-               the title. If the delimiters aren't balanced (eg if the opening
-               one is present but no closing one is found) then the URI is
-               treated as not being wrapped.
+        ignore_quoted
+            If the "ignore_quoted" parameter is supplied and set to a true
+            value, then any URIs immediately preceded with a double-quote
+            character will not be matched, ie your callback will not be
+            executed for them and they'll be treated just as normal text.
 
-               Note: the default callback will not remove the delimiters from
-               the text. It should be simple enough to write your own callback
-               to remove them, based on the one in the source, if that's what
-               you want.  In fact there's an example in this distribution, in
-               "t/delimited.t".
+            This is kinda lame but it's in here because I need to be able to
+            ignore things like
 
-           ddeelliimmiitteerr__rree
-               The "delimiter_re" parameter is optional. If you do supply it
-               then it should be a ref to an array containing two regexes.  It
-               defaults to using single square brackets as the delimiters.
+              <img src="http://foo.com/bar.gif">
 
-               Don't use capturing groupings "( )" in your delimiters or
-               things will break. Use non-capturing "(?: )" instead.
+            A better implementation may happen at some point.
 
-           iiggnnoorree__qquuootteedd
-               If the "ignore_quoted" parameter is supplied and set to a true
-               value, then any URIs immediately preceded with a double-quote
-               character will not be matched, ie your callback will not be
-               executed for them and they'll be treated just as normal text.
+SEE ALSO
+        URI::Find.
 
-               This is kinda lame but it's in here because I need to be able
-               to ignore things like
+AUTHOR
+        Kake Pugh (kake@earth.li).
 
-                 <img src="http://foo.com/bar.gif">
+COPYRIGHT
+             Copyright (C) 2003 Kake Pugh.  All Rights Reserved.
 
-               A better implementation may happen at some point.
+        This module is free software; you can redistribute it and/or modify
+        it under the same terms as Perl itself.
 
-SSEEEE AALLSSOO
-       URI::Find.
+CREDITS
+        Tim Bagot helped me stop faffing over the name, by pointing out that
+        RFC 2396 Appendix E uses "delimited". Dave Hinton helped me fix the
+        regex to make it work for delimited URIs with no title. Nick Cleaton
+        helped me make "ignore_quoted" work. Some of the code was taken from
+        URI::Find.
 
-AAUUTTHHOORR
-       Kake Pugh (kake@earth.li).
-
-CCOOPPYYRRIIGGHHTT
-            Copyright (C) 2003 Kake Pugh.  All Rights Reserved.
-
-       This module is free software; you can redistribute it and/or modify it
-       under the same terms as Perl itself.
-
-CCRREEDDIITTSS
-       Tim Bagot helped me stop faffing over the name, by pointing out that
-       RFC 2396 Appendix E uses "delimited". Dave Hinton helped me fix the
-       regex to make it work for delimited URIs with no title. Nick Cleaton
-       helped me make "ignore_quoted" work. Some of the code was taken from
-       URI::Find.
-
-
-
-3rd Berkeley Distribution         2003-02-05           URI::Find::Delimited(3)

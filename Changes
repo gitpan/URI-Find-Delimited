@@ -1,0 +1,6 @@
+0.02    24 March 2003
+        Bugfix (CPAN RT #2245) - turned on URI::URL::strict to stop it
+          assuming that any old thing followed by a colon is a scheme.
+
+0.01    18 February 2003
+        Initial release.

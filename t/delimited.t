@@ -111,10 +111,10 @@ $finder->find(\$text);
 is( $text, qq|This has a <a href="http://the.earth.li/">link already embedded|,
     "...but not when ignore_quoted is true" );
 
-$finder = URI::Find::Delimited->new( ignore_quoted => 1,
-				   scheme_re     => '(?:file|http)' );
-$text = qq|This has a file:///usr/doc/file_uri.txt|;
+# Bug CPAN RT #2245
+$finder = URI::Find::Delimited->new;
+$text = qq|style:font|;
 $finder->find(\$text);
-is( $text, qq|This has a <a href="file:///usr/doc/file_uri.txt">file:///usr/doc/file_uri.txt</a>|,
-    "can override scheme_uri when ignore_quoted supplied" );
+is( $text, "style:font",
+    "random things with colons in not automatically assumed to be URIs" );
 
