@@ -1,0 +1,5 @@
+MANIFEST
+Makefile.PL
+README
+lib/URI/Find/Delimited.pm
+t/delimited.t
