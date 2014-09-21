@@ -3,12 +3,13 @@ package URI::Find::Delimited;
 use strict;
 
 use vars qw( $VERSION );
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 use base qw(URI::Find);
 
 # For 5.005_03 compatibility (copied from URI::Find::Schemeless)
 use URI::Find ();
+use URI::URL;
 
 =head1 NAME
 
@@ -107,7 +108,7 @@ then any URIs immediately preceded with a double-quote character will
 not be matched, ie your callback will not be executed for them and
 they'll be treated just as normal text.
 
-This is kinda lame but it's in here because I need to be able to
+This is a bit of a hack but it's in here because I need to be able to
 ignore things like
 
   <img src="http://foo.com/bar.gif">
